@@ -4361,6 +4361,1353 @@ value="${requestScope.page.pageNo - 2}"/> <!-- 设置起始，为后续限制显
 </div>
 ```
 
+### 56. promoise_utils  工具
+
+```js
+let get = function (url, data) {
+    return new Promise((resolve, reject) => {   //  return 给下一个调用者【实际上是一个调用链】
+        $.ajax({
+            url: url,   //  模板字符串
+            data: data,
+            error(err) {    //  失败后的回调函数 ---> ES6 简写版
+                reject(err);    //  如果出现了 err，就去调用 reject 函数
+            },
+            success(resultData) {
+                //  继续下一次的请求
+                resolve(resultData);
+            }
+        })
+    })
+}
+```
+
+应用：
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>课后作业 promise 实现</title>
+    <!-- 引入 jQuery-->
+    <script type="text/javascript" src="script/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="script/promise_utils.js"></script>  <!-- 引入 promise的工具方法 get-->
+    <script type="text/javascript">
+        //  1. get：请求
+        //  2. then：拿到
+        get("data/student_100.json")
+            .then((resultData) =>{
+                console.log("第1 次 ajx 请求返回的数据=", resultData);
+                return get(`data/class_${resultData.class_id}.json`)    //  return：链式调用！！！
+            }).then((resultData) =>{
+            console.log("第2 次 ajx 请求返回的数据=", resultData);
+            return  get(`data/school_${resultData.school_id}.json`)
+        }).then((resultData) => {
+            console.log("第3 次 ajx 请求返回的数据=", resultData);
+        }).catch((err) => { //  ES6 箭头函数如果只有一个参数，可以不用小括号
+            console.log("promise 异步请求异常=", err);
+        })
+
+    </script>
+</head>
+<body>
+
+</body>
+</html>
+```
+
+### 57. VUE 引入
+
+el：element 的简写！！！
+
+- id选择器：#
+- class 选择器 .
+
+v-on:click 表示我们要给 button 元素绑定一个 click 事件
+
+sayHi() 表示绑定的方法，在方法池 methods{}  中定义的
+
+data：数据域
+
+methods：方法域
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>事件处理</title>
+</head>
+<body>
+<div id="app">
+    <h1>{{message}}</h1>
+    <button v-on:click="sayHi()">点击输出</button>
+    <button v-on:click="sayOk()">点击输出</button>
+</div>
+<script src="vue.js"></script>
+<script>
+    let vm = new Vue({
+        el: "#app", //创建的vue实例挂载到 id=app的div
+        data: { //data{} 表示数据池(model的有了数据), 有很多数据 ,以k-v形式设置(根据业务需要来设置)
+            message: "VUE 事件处理案例",
+            //  1. 是一个 methods 属性，对应的值是对象 {}
+            //  2. 在 {} 中可以写很多方法，可以这样理解，是一个方法池
+        },
+        methods: {
+            sayHi() {
+                console.log("hi, 银角大王~");
+            },
+            sayOk() {
+                console.log("ok, 金角大王！")
+            }
+        }
+    });
+    console.log("vm=>", vm);
+</script>
+</body>
+</html>
+```
+
+### 58. 全局组件
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>全局组件</title>
+</head>
+<body>
+
+<div id="app">
+    <h1>组件化编程，全局组件</h1>
+    <!--使用全局组件-->
+    <counter></counter><br>
+    <counter></counter>
+</div>
+<script src="vue.js"></script>
+<script>
+    //  1. 定义一个全局组件，名称为 counter
+    //  2. {} 就是我们组件相关的内容
+    //  3. template 指定该组件的界面，因为会引用到数据池的数据，所以需要使用模板字符串
+    //  4. 说明：要把组件视为一个 VUE 实例，也有自己的数据池和 methods
+    //  5. 说明：对于组件，我们的数据池的数据，是使用函数 / 方法返回【保证每个组件的数据独立】，不能使用原来的方式了
+    //  6. 这时，我们达到目的，界面通过 template 实现共享，业务处理也复用
+
+    Vue.component("counter",{
+        template: `<button v-on:click="click()">点击次数=非组件化方式 {{count}}</button><br>`,
+        data(){
+            return{
+                count: 10
+            }
+        },
+        methods: {
+            click(){
+                this.count += 1;
+            }
+        }
+    })
+
+    //  创建 Vue 实例，必须有
+    new Vue({
+        el: "#app",
+    })
+</script>
+
+</body>
+</html>
+```
+
+### 59. 局部组件
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>局部组件</title>
+</head>
+<body>
+
+<div id="app">
+    <h1>组件化编程，局部组件</h1>
+    <!--使用局部组件，该组件是从挂载到 app 的vue中的-->
+    <my_counter></my_counter><br>
+    <my_counter></my_counter><br>
+    <my_counter></my_counter><br>
+</div>
+<script src="vue.js"></script>
+<script>
+    //  定义一个组件 【本质就是一个对象】
+    //  扩展
+    //  1. 可以把常用的组件，定义在某个 common.js 中 export
+    //  2. 如果某个页面需要使用，直接 import 即可
+    const buttonCounter = {
+        template: `<button v-on:click="click()">点击次数=局部组件化方式 {{count}}</button><br>`,
+        data(){
+            return{
+                count: 10
+            }
+        },
+        methods: {
+            click(){
+                this.count += 1;
+            }
+        }
+    }
+
+    //  创建 Vue 实例，必须有
+    new Vue({
+        el: "#app",
+        components: {   //  引入某个组件，此时 my_counter 就是一个组件，是一个局部组件，它的使用范围：当前 vue
+            'my_counter': buttonCounter
+        }
+    })
+</script>
+
+</body>
+</html>
+```
+
+### 60. HelloWorld.vue 原始代码
+
+```html
+<template>
+  <div class="hello">
+    <h1>{{ msg }}</h1>
+    <h2>Essential Links</h2>
+    <ul>
+      <li>
+        <a
+          href="https://vuejs.org"
+          target="_blank"
+        >
+          Core Docs
+        </a>
+      </li>
+      <li>
+        <a
+          href="https://forum.vuejs.org"
+          target="_blank"
+        >
+          Forum
+        </a>
+      </li>
+      <li>
+        <a
+          href="https://chat.vuejs.org"
+          target="_blank"
+        >
+          Community Chat
+        </a>
+      </li>
+      <li>
+        <a
+          href="https://twitter.com/vuejs"
+          target="_blank"
+        >
+          Twitter
+        </a>
+      </li>
+      <br>
+      <li>
+        <a
+          href="http://vuejs-templates.github.io/webpack/"
+          target="_blank"
+        >
+          Docs for This Template
+        </a>
+      </li>
+    </ul>
+    <h2>Ecosystem</h2>
+    <ul>
+      <li>
+        <a
+          href="http://router.vuejs.org/"
+          target="_blank"
+        >
+          vue-router
+        </a>
+      </li>
+      <li>
+        <a
+          href="http://vuex.vuejs.org/"
+          target="_blank"
+        >
+          vuex
+        </a>
+      </li>
+      <li>
+        <a
+          href="http://vue-loader.vuejs.org/"
+          target="_blank"
+        >
+          vue-loader
+        </a>
+      </li>
+      <li>
+        <a
+          href="https://github.com/vuejs/awesome-vue"
+          target="_blank"
+        >
+          awesome-vue
+        </a>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+export default {  //  组件【可以看作 vue 实例】
+  name: 'HelloWorld',
+  data () { //  数据池
+    return {
+      msg: 'Welcome to Your Vue.js App'
+    }
+  }
+}
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+h1, h2 {
+  font-weight: normal;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  display: inline-block;
+  margin: 0 10px;
+}
+a {
+  color: #42b983;
+}
+</style>
+
+```
+
+### 61. Vue 非简写版本
+
+注意：导入名字由自己确定
+
+```java
+//对应导入方式, 导入名字自己指定,通过.方式来选择调用函数/变量
+import m from "./es6_common"
+```
+
+```js
+//	完整写法
+import Vue from 'vue'	//	类似与 java 使用 hashMap 就要先引入
+import App from './App.vue'	
+import router from './router/index.js'
+
+Vue.config.productionTip = false
+
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',	//这里的#app 是挂到index.html 的<div id="app"></div>
+  router,	//完整写法是 router: router, 第二个router 是import router[这里] from './router'
+  components: { App }, //完整写法是components: { 'App':App } 因为名字相同可以省略'App'
+  template: '<App></App>' 
+})
+```
+
+### 62. Vue 请求页面执行流程
+
+![image-20230315183928012](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202303151839363.png)
+
+### 63. table 不居中的原因
+
+![image-20230315201331884](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202303152013014.png)
+
+因为最终的页面会到 App.vue 中
+
+这个页面中有：
+
+```vue
+<style>
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;	# 
+  color: #2c3e50;
+  margin-top: 60px;
+}
+</style>
+```
+
+现在你在 alq.vue 中写了这个样式
+
+```html
+<!-- 因为它的优先级高，所以后面的居中样式，就不会生效了-->
+<style scoped>
+div {
+  width: 900px;
+  background-color: aliceblue;
+}
+</style>
+```
+
+解决方式：增加一条前端样式
+
+```html
+<!--样式 css，可以修饰页面视图-->
+<!--
+	0：上下边距
+	auto：左右居中
+-->
+<style scoped>
+div {
+  width: 900px;
+  background-color: aliceblue;
+  margin: 0 auto;
+}
+</style>
+```
+
+### 64. debugger 设置
+
+![image-20230318162924887](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202303181629993.png)
+
+![image-20230318163018371](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202303181630485.png)
+
+### 65. Java Volatile关键字【触发刷新】
+
+Java的volatile关键字用于标记一个变量“应当存储在主存”。更确切地说，每次读取volatile变量，都应该从主存读取，而不是从CPU缓存
+
+取。每次写入一个volatile变量，应该写到主存中，而不是仅仅写到 CPU缓存。
+
+<font color="yellow">**变量可见性** </font>问题：
+
+Java的volatile关键字能保证变量修改后，对各个线程是可见的。这个听起来有些抽象，下面就详细说明。
+
+在一个多线程的应用中，线程在操作非volatile变量时，出于性能考虑，每个线程可能会将变量从主存拷贝到 CPU缓存 中。如果你的计算机有多个CPU，每个线程可能会在不同的CPU中运行。这意味着，每个线程都有可能会把变量拷贝到各自CPU的缓存中，如下图所示：
+
+![img](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202303181906714.png)
+
+对于非volatile变量，JVM并不保证会从主存中读取数据到CPU缓存，或者将CPU缓存中的数据写到主存中。这会引起一些问题，在后面的章节中，我会来解释这些问题。
+
+试想一下，如果有两个以上的线程访问一个共享对象，这个共享对象包含一个counter变量，下面是代码示例：
+
+```java
+public class SharedObject {
+    public int counter = 0;
+}
+```
+
+如果只有线程1修改了（自增）counter变量，而线程1和线程2两个线程都会在某些时刻读取counter变量。
+
+如果counter变量没有声明成volatile，则counter的值不保证会从CPU缓存写回到主存中。也就是说，CPU缓存和主存中的counter变量值并不一致，如下图所示：
+
+![img](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202303181929435.png)
+
+这就是“可见性”问题，线程看不到变量最新的值，因为其他线程还没有将变量值从CPU缓存写回到主存。一个线程中的修改对另外的线程是不可见的。
+
+volatile可见性保证
+
+Java的volatile关键字就是设计用来解决变量可见性问题。将counter变量声明为volatile，则在写入counter变量时，也会 <font color="yellow">**同时将变量值写入到主存** </font>中。同样的，在读取counter变量值时，也会直接从主存中读取。
+
+下面的代码演示了如果将counter声明为 volatile：
+
+```java
+public class SharedObject {
+    public volatile int counter = 0;
+}
+```
+
+将一个变量声明为volatile，可以保证变量写入时对其他线程的可见。
+
+在上面的场景中，一个线程（T1）修改了counter，另一个线程（T2）读取了counter（但没有修改它），将counter变量声明为volatile，就能保证写入counter变量后，对T2是可见的。
+
+然而，如果 <font color="red"> **T1**和**T2**</font> 都修改了counter的值，只是将counter声明为volatile还远远不够，后面会有更多的说明。
+
+实际上，volatile的可见性保证并不是只对于volatile变量本身那么简单。可见性保证遵循以下规则：
+
+- 如果线程A写入一个volatile变量，线程B随后读取了同样的volatile变量，则线程A在写入volatile变量之前的所有可见的变量值，在线程B读取volatile变量后也同样是可见的。
+- 如果线程A读取一个volatile变量，那么线程A中所有可见的变量也会同样从主存重新读取。
+
+代码说明：
+
+```java
+ 
+public class MyClass {
+    private int years;
+    private int months
+    private volatile int days;
+ 
+ 
+    public void update(int years, int months, int days){
+        this.years  = years;
+        this.months = months;
+        this.days   = days;
+    }
+}
+```
+
+update() 方法写入 3 个变量，其中只有 days 变量是 volatile
+
+- 完整的 volatile 可见性意味着，在写入 days 变量时，线程中所有可见变量也会写入到主存。
+- 也就是说：，写入days变量时，years和months也会同时被写入到主存
+
+下面的代码读取了years、months、days变量：
+
+```java
+ public class MyClass {
+    private int years;
+    private int months
+    private volatile int days;
+ 
+    public int totalDays() {
+        int total = this.days;
+        total += months * 30;
+        total += years * 365;
+        return total;
+    }
+ 
+    public void update(int years, int months, int days){
+        this.years  = years;
+        this.months = months;
+        this.days   = days;
+    }
+}
+```
+
+请注意totalDays()方法开始读取days变量值到 total 变量。在读取days变量值时，months和years的值也会同时从主存读取。
+
+因此，按上面所示的顺序读取时，可以保证读取到 days、months、years变量的最新值。
+
+译者注：可以将 <font color="yellow">对volatile**变量的读写**</font> 理解为一个<font color="yellow">触发刷新的操作</font>，写入volatile变量时，线程中的所有变量也都会触发写入主存。而读取volatile变量时，也同样会触发线程中所有变量从主存中重新读取。
+
+- 因此，应当尽量将volatile的写入操作放在最后，
+- 而将volatile的读取放在最前，
+  - 这样就能连带将其他变量也进行刷新。上面的例子中，update()方法	对days的赋值就是放在years、months之后，就是保证years、months也能将最新的值写入到主存，如果是放在两个变量之前，则days会写入主存，而years、months则不会。
+  - 反过来，totalDays()方法则将days的读取放在最前面，就是为了能同时触发刷新years、months变量值，如果是放后面，则years、months就可能还是从CPU缓存中读取值，而不是从主存中获取最新值。
+
+### 66. beans.xml name 爆红
+
+1. beans.xml 中配置的 bean 太多了
+2. 窗口开得太多了
+3. 清除缓存，再重启
+
+### 67. Spring 懒加载【Spring 默认不是懒加载，而是迫切加载】
+
+1. Spring懒加载 就是延迟创建bean的时间，通常在初始化容器的时候就创建bean，设置了懒加载后，在创建容器的时候不创建bean，在需要用到这个bean的时候才去创建这个bean
+
+2. 懒加载的应用的场景：如果某个bean在系统运行的整个周期都有可能不使用，那么就可以设置为懒加载
+
+3. 懒加载的优点：节省了资源
+
+4. 懒加载的缺点：响应的时间整个周期比较长
+
+5. 与懒加载相对应的就是迫切加载，Spring默认的就是迫切加载，优缺点和懒加载相反
+
+6. 将交给spring管理的类设置为懒加载
+
+   ```xml
+   <bean id="animal" class="cn.xjxwc666.spring.Animal" lazy-init="true"></bean>
+   ```
+
+ 总结：是不是懒加载主要是看创建容器的时候，会不会去创建对象，默认是迫切加载就会创建
+
+### 68. classpath
+
+![image-20230323123531068](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202303231235199.png)
+
+### 69.  得到 web.xml 文件路径
+
+```java
+//  接收一个容器的配置文件，比如：beans.xml，该文件默认在 src
+String path = this.getClass().getResource("/").getPath();
+System.out.println("path= " + path);
+```
+
+```bash
+# 工作目录路径
+D:/spring5/out/production/spring5/beeans.xml
+```
+
+### 70. 通过类加载器获取要扫描包的真正路径
+
+```java
+// 	得到扫描包下的所有资源(类.class) ===> 工作目录的 class
+URL resource = configClass.getClassLoader().getResource(path);  //  URL 对象有许多 API
+path = resource.getPath();
+System.out.println("我们真正要扫描的路径如下：");
+System.out.println(path);
+```
+
+任何一个 Class 文件的 类加载器都可以
+
+```java
+package com.llq.spring.annotation;
+
+/**
+ * LlqSpringApplicationContext 作用类似：Spring 原生 IOC 容器
+ */
+public class LlqSpringApplicationContext {
+    private Class configClass;
+    //  存放的是通过反射创建的对象（基于注解方式）
+    private final ConcurrentHashMap<Object, Object> singleTonObject = new ConcurrentHashMap<>();
+
+    public LlqSpringApplicationContext(Class configClass) {
+        //  这里拿到了自定义配置类的 Class 类型
+        this.configClass = configClass;
+        System.out.println("配置类的 Class 类型");
+        System.out.println("this.configClass= " + this.configClass);
+        //  1. 先得到 LlqSpringConfig 配置的注解 @ComponentScan(value = "com.llq.spring.component")
+        ComponentScan declaredAnnotation = (ComponentScan)this.configClass.getDeclaredAnnotation(ComponentScan.class);
+        //  2. 通过 ComponentScan的 value ===> 要扫描的包
+        String path = declaredAnnotation.value();
+        System.out.println("待扫描的包如下：");
+        System.out.println(path);   //  com.llq.spring.component ===> 路径的话，要将 . 替换为 、 ===》com/llq/spring/component
+        path = path.replace(".", "/");
+
+        //  3. 得到扫描包下的所有资源(类.class) ===> 工作目录的 class
+        URL resource = configClass.getClassLoader().getResource(path);  //  URL 对象有许多 API
+        path = resource.getPath();
+        System.out.println("我们真正要扫描的路径如下：");
+        System.out.println(path);
+
+        //  4. 将要加载的资源(.class) 路径下的文件进行遍历 ===> IO 知识
+
+        File file = new File(path); //  得到目录
+        File[] files = file.listFiles();    //  列出目录下的所有文件
+        for (File f : files) {
+            System.out.println(f.getAbsolutePath());
+        }
+    }
+}
+```
+
+### 71. 2种 获得 Class 对象的反射方法的区别
+
+- 传统方式 Class.forName() 会调用该类的静态方法
+- 使用类加载器则不会
+
+```java
+//	一般方式
+Class.forname(classFullName)
+    
+//	使用类加载器【较为轻量级】
+classLoader.loadClass(classFullName)
+```
+
+### 72. 判断 Class 对象是否包含某个注解
+
+```java
+//	isAnnotationPresent(Service.class)
+Class<?> aClass = Class.forName(classFullName);
+
+if (aClass.isAnnotationPresent(Service.class) ||
+    aClass.isAnnotationPresent(Controller.class) || aClass.isAnnotationPresent(Component.class) ||
+    aClass.isAnnotationPresent(Repository.class)){
+    System.out.println("ok");
+    Object o = aClass.getConstructor().newInstance();
+    System.out.println("获得对象并放入容器中");
+    singleTonObjects.put(classFullName, o);
+}
+```
+
+### 73. StringUtils工具类实现首字母小写
+
+源自 Spring 框架
+
+![image-20230326205314067](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202303262053303.png)
+
+```java
+StringUtils.uncapitalize(className)
+```
+
+![image-20230327101429961](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202303271014533.png)
+
+还可以在 Maven pom.xml 中进行引入：	
+
+```xml
+<!-- org.apache.commons.lang -->
+<dependency>
+    <groupId>commons-lang</groupId>
+    <artifactId>commons-lang</artifactId>
+    <version>2.6</version>
+</dependency>
+```
+
+### 74. beans.xml 中 注解配置和XML配置并不冲突
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- 定义Spring容器创建时，要去扫描的包！！！ -->
+    <context:component-scan base-package="com.llq.spring.component"/>
+
+    <!-- XML配置和注解配置并不冲突-->
+
+    <!-- 配置两个 UserService 对象-->
+    <bean class="com.llq.spring.component.UserService" id="userService200"/>
+    <bean class="com.llq.spring.component.UserService" id="userService300"/>
+
+</beans>
+```
+
+此时在容器中，就有 3个 UserService 对象，它们的 id 分别是：
+
+- userService【通过注解，自动扫描的id 默认就是 类名首字母小写！！！】
+- userService200
+- userService300
+
+
+### 75. Spring 单例模式的理解【scope=singleton / prototype】
+
+单例：集合手写 主键
+
+```java
+//	单利下，所有的 bean 都存放在 Map 中
+//	所以每次 getBean 都会返回同一对象
+private final ConcurrentHashMap<Object, Object> singleTonObject = new ConcurrentHashMap<>();
+```
+
+```java
+package com.llq.spring.annotation;
+
+/**
+ * LlqSpringApplicationContext 作用类似：Spring 原生 IOC 容器
+ */
+public class LlqSpringApplicationContext {
+    private Class configClass;
+    //  存放的是通过反射创建的对象（基于注解方式）
+    private final ConcurrentHashMap<Object, Object> singleTonObject = new ConcurrentHashMap<>();
+
+    public LlqSpringApplicationContext(Class configClass) {
+        //  这里拿到了自定义配置类的 Class 类型
+        this.configClass = configClass;
+        System.out.println("配置类的 Class 类型");
+        System.out.println("this.configClass= " + this.configClass);
+        //  1. 先得到 LlqSpringConfig 配置的注解 @ComponentScan(value = "com.llq.spring.component")
+        ComponentScan declaredAnnotation = (ComponentScan)this.configClass.getDeclaredAnnotation(ComponentScan.class);
+        //  2. 通过 ComponentScan的 value ===> 要扫描的包
+        String path = declaredAnnotation.value();
+        System.out.println("待扫描的包如下：");
+        System.out.println(path);
+
+    }
+
+    public Class getConfigClass() {
+        return configClass;
+    }
+}
+```
+
+当 Spring 容器启动后，单例  Singleton 默认就会创建，并放入到 singletonObjects 集合
+
+而多例模式，它不知道要创建多少个，所以不会默认创建，该 bean 是在 getBean() 时才会创建
+
+### 75. 开启AOP 注解  功能 \<aop:aspectj-autoproxy/> ===> 这样得到的 bean 才是 运行类型是 Proxy 的代理对象【编译类型是接口类型】，否则拿到的就是普通对象，普通对象是切不进去的
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!--现在是基于注解来玩的，所以先定义扫描位置-->
+    <context:component-scan base-package="com.llq.spring.aop.aspectJ"/>
+
+    <!-- 开启基于注解的 AOP 功能-->
+    <aop:aspectj-autoproxy/>
+</beans>
+```
+
+这样才能让 <font color="yellow">@**Aspect**</font> 注解生效
+
+```java
+package com.llq.spring.aop.aspectJ;
+
+/**
+ * 切面类
+ * 类似我们之前写的 MyProxyProvider，但是功能强大很多
+ */
+@Aspect //  切面类【底层切面编程的支撑（动态代理 + 反射 + 动态绑定 ...）】
+@Component  //  Spring 容器会注入 SmartAnimalAspect
+public class SmartAnimalAspect {
+    //  希望将 f1() 方法切入到 Animal 的 getSum 前执行 ===> 前置通知
+
+
+    /**
+     * 解读
+     * 1. @Before：表示 前置通知【目标对象执行方法前执行】
+     * 2. value = "execution(指定 切入到哪个类的 哪个方法)"
+     *      形式为：访问修饰符  + 返回类型 + 全类名.方法名(形参列表) ===> 为什么带形参列表？【可能方法名相同，进行了方法重载】
+     * 3. f1(JoinPoint joinPoint) 方法可以理解成就是一个切入方法，方法名由程序员指定 【一般为：showBeginLog】
+     *
+     * @param joinPoint：在底层执行时，由 AspectJ切面编程框架，会给该切入方法传入 JoinPoint 对象
+     *                   通过该对象方法，程序员可以得到 相关信息
+     */
+    @Before(value = "execution(public double com.llq.spring.aop.aspectJ.Animal.getSum(double, double))")
+    public static void f1(JoinPoint joinPoint){
+        //  通过连接点对象 joinPoint 可以拿到方法签名
+        Signature signature = joinPoint.getSignature();
+        String name = signature.getName();
+        Object[] args = joinPoint.getArgs();    //  同理，拿到参数
+
+
+        List<Object> objects = Arrays.asList(args);
+        System.out.println("方法名-" + name + "-参数" + objects.toString()); //  1. 横切关注点：前置通知
+    }
+
+    //  2. 定义一个方法，在目标对象执行后执行
+    public static void after(Method method, Object result){
+        System.out.println("方法名字-" + method.getName() + " -结果 result= " + result); //  2. 很且关注点：返回通知
+
+    }
+}
+```
+
+![image-20230331113316886](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202303311133161.png)
+
+不开 AOP 注解：
+
+![image-20230331132508701](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202303311325883.png)
+
+开启 AOP 注解：
+
+![image-20230331132550072](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202303311325254.png)
+
+### 76. 切入点表达式复用【定义一个方法，添加注解@Pointcut(value="execution(...)"在后面使用时可以直接引用，提高复用性)】
+
+```java
+@Pointcut(value = "execution(public double com.llq.spring.aop.aspectJ.Animal.getSum(double, double))")
+```
+
+注意：如果 目标类和切面类在同一个包下，可以省略包名【只有注解方式下，才可以。如果是 XML 方式，因为 XML文件和目标类文件不再同一包下，所以必须使用全路径！！！】
+
+即：
+
+```java
+@Pointcut(value = "execution(public double Animal.getSum(double, double))")
+```
+
+```java
+package com.llq.spring.aop.aspectJ;
+
+/**
+ * 切面类
+ */
+@Aspect //  切面类【底层切面编程的支撑（动态代理 + 反射 + 动态绑定 ...）】
+@Component  //  Spring 容器会注入 SmartAnimalAspect
+public class SmartAnimalAspect {
+    @Pointcut(value = "execution(public double com.llq.spring.aop.aspectJ.Animal.getSum(double, double))")
+    //  定义一个切入点，在后面使用时可以直接引用，提高复用性
+    public void myPointCut(){}
+
+    //  1. 前置通知
+
+    //  这里使用定义好的切入点
+    @Before(value = "myPointCut()")
+    public void f1(JoinPoint joinPoint){
+        //  通过连接点对象 joinPoint 可以拿到方法签名
+        Signature signature = joinPoint.getSignature();
+        String name = signature.getName();
+        Object[] args = joinPoint.getArgs();    //  同理，拿到参数
+
+        List<Object> objects = Arrays.asList(args);
+        System.out.println("切面类f1() 方法名-" + name + "-执行前日志：-参数" + objects.toString()); //  1. 横切关注点：前置通知
+    }
+
+    //  2. 返回通知
+    @AfterReturning(value = "myPointCut()", returning = "res")
+    public void f2(JoinPoint joinPoint, Object res){
+        Signature signature = joinPoint.getSignature();
+        String name = signature.getName();
+
+        System.out.println("切面类f2() 方法名-" + name + " -方法正常结束执行后日志---> 目标方法返回的结果：" + res);
+
+    }
+
+    //  3. 异常通知
+    @AfterThrowing(value = "myPointCut()", throwing = "e1")
+    public void f3(JoinPoint joinPoint, Throwable e1){
+        Signature signature = joinPoint.getSignature();
+        String name = signature.getName();
+
+        System.out.println("切面类f3() 方法名-" + name + " -方法出现异常 ---> 异常信息：" + e1);
+    }
+
+    //  4. 最终通知：即把方法 f4 切入到目标方法执行后（不管是否发生异常，都要执行，类似 finally{}）
+    @After(value = "myPointCut()")
+    public void f4(JoinPoint joinPoint){
+        Signature signature = joinPoint.getSignature();
+        String name = signature.getName();
+
+        System.out.println("切面类f4() 方法名-" + name + " -方法最终执行完毕");
+    }
+}
+```
+
+使用 XML 方式配置
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 使用 XML 配置，完成AOP 编程-->
+    <!-- 1. 配置切面类 Bean-->
+    <bean class="com.llq.spring.aop.xml.SmartAnimalAspect" id="smartAnimalAspect"/>
+
+    <!-- 2. 配置目标类 Bean-->
+    <bean class="com.llq.spring.aop.xml.Animal" id="animal"/>
+
+    <!-- 3. 配置切面类关系 -->
+    <aop:config>
+        <!-- 配置切入点表达式 -->
+        <aop:pointcut id="myPointCut" expression="execution(public double com.llq.spring.aop.xml.Animal.getSum(double, double))"/>
+        <!-- 配置切面的前置，返回，异常，最终通知-->
+        <aop:aspect ref="smartAnimalAspect" order="1">
+            <!-- 配置前置通知 -->
+            <aop:before method="f1" pointcut-ref="myPointCut"/>
+            <!-- 配置返回通知-->
+            <aop:after-returning method="f2" pointcut-ref="myPointCut" returning="res"/>
+            <!-- 配置异常通知-->
+            <aop:after-throwing method="f3" pointcut-ref="myPointCut" throwing="e1"/>
+            <!-- 配置最终通知-->
+            <aop:after method="f4" pointcut-ref="myPointCut"/>
+        </aop:aspect>
+    </aop:config>
+</beans>
+```
+
+### 77. Maven 项目中 beans.xml 文件位置
+
+![image-20230403193654767](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202304031936980.png)
+
+
+
+```java
+package com.llq.spring;
+
+public class AppMain {
+
+    public static void main(String[] args) {
+        //  测试看看是否可以得到 Spring 容器中的 bean
+        //  同时观察依赖注入，是否正确！！！
+        //  1. 如果是普通的 java 项目，beans.xml 放在 src 目录下
+        //  2. 如果是 java maven 项目，beans.xml 放在 src/main/resources 下
+
+        ApplicationContext ioc = new ClassPathXmlApplicationContext("beans.xml");
+        UserAction userAction1 = ioc.getBean("userAction", UserAction.class);
+        UserAction userAction2 = ioc.getBean("userAction", UserAction.class);
+        System.out.println(userAction1);
+        System.out.println(userAction2);
+    }
+}
+```
+
+### 78. JDK没有JAVAX.ANNOTATION.JAR包解决方案，无法使用@RESOURCE解决方案
+
+普通项目：下载 [javax.annotation-api-1.3.2.jar](https://repo1.maven.org/maven2/javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.jar)，并在 lib 目录中引入即可
+
+Maven项目：在 pom.xml 中进行配置
+
+```xml
+<dependency>
+    <groupId>javax.annotation</groupId>
+    <artifactId>jsr250-api</artifactId>
+    <version>1.0</version>
+</dependency>
+```
+
+### 79. 类加载器
+
+Java 类加载器（3种）
+
+| 加载器    | 对应路径                                      |
+| --------- | --------------------------------------------- |
+| Bootstrap | jre/lib                                       |
+| Ext       | jre/lib/ext                                   |
+| App       | classpath【就是 java.exe 执行时，指定的路径】 |
+
+```bash
+D:\Java\jdk-14.0.1\bin\java.exe "-javaagent:D:\Program Files (x86)\JetBrains\IntelliJ IDEA 2020.1.2\lib\idea_rt.jar=5999:D:\Program Files (x86)\JetBrains\IntelliJ IDEA 2020.1.2\bin" -Dfile.encoding=UTF-8 -
+# 看下 classpath
+classpath D:\llq-spring\target\classes;C:\Users\李隆齐\.m2\repository\org\springframework\spring-context\5.3.8\spring-context-5.3.8.jar;C:\Users\李隆齐\.m2\repository\org\springframework\spring-aop\5.3.8\spring-aop-5.3.8.jar;C:\Users\李隆齐\.m2\repository\org\springframework\spring-beans\5.3.8\spring-beans-5.3.8.jar;C:\Users\李隆齐\.m2\repository\org\springframework\spring-core\5.3.8\spring-core-5.3.8.jar;C:\Users\李隆齐\.m2\repository\org\springframework\spring-jcl\5.3.8\spring-jcl-5.3.8.jar;C:\Users\李隆齐\.m2\repository\org\springframework\spring-expression\5.3.8\spring-expression-5.3.8.jar;C:\Users\李隆齐\.m2\repository\org\springframework\spring-aspects\5.3.8\spring-aspects-5.3.8.jar;C:\Users\李隆齐\.m2\repository\org\aspectj\aspectjweaver\1.9.6\aspectjweaver-1.9.6.jar;C:\Users\李隆齐\.m2\repository\javax\annotation\jsr250-api\1.0\jsr250-api-1.0.jar com.llq.spring.AppMain
+```
+
+可以看到 classpath中包含：<font color="yellow">target/**classes**</font> 路径 ===> 所以才能加载你自定义的类
+
+### 79. 扫描路径scanDir 与 反射Path
+
+1. 通过获取配置类 @Component 注解的 value ===> com.llq.spring.component【<font color="red">**Path**</font>】
+
+   ```bash
+   # 初始 Path ===> 源自配置类的 @Component注解的 value
+   com.llq.spring.component
+   # 反射中的 classFullPath
+   String classFullPath = com.llq.spring.component + 类名
+   ```
+
+2. 定义一个变量 String 【<font color="blue">**scanDir**</font>】 用来存储扫描路径
+
+   ```bash
+   # 初始 scanDir ===> com/llq/spring/component ===> 符合 IO 格式，用于查找目录下所有的 .class 文件
+   String scanDir = path.replace(".", "/"); com/llq/spring/component
+   # 得到扫描包下的所有资源(类.class) ===> 工作目录的 class
+   URL resource = configClass.getClassLoader().getResource(scanDir);  //  URL 对象有许多 API
+   scanDir = resource.getPath(); /D:/llq-myspring/target/classes/com/llq/spring/component
+   ```
+
+3. 查找文件夹下的所有的 .class 文件
+
+   ```java
+   File file = new File(scanDir); //  得到目录
+   File[] files = file.listFiles();    //  列出目录下的所有文件
+   for (File f : files) {
+       String absolutePath = f.getAbsolutePath();
+       //  注意这里，只处理 .class 文件
+       if (absolutePath.endsWith(".class")) {
+   
+           System.out.println(absolutePath);   //  D:\spring5\out\production\spring5\com\llq\spring\component\UserService.class
+           //  现在反射需要得到：com.llq.spring.component.UserService
+           //  1. 先获取类名
+           String[] split = absolutePath.split("\\\\");
+           String className = split[split.length - 1].split("\\.")[0];
+           //  得到类名
+           System.out.println("类名：" + className);
+           //	得到反射路径
+           String classFullName = path + "." + className; // 包名 + 类名
+           System.out.println(classFullName);
+           try {
+               Class<?> aClass = Class.forName(classFullName);
+               if (aClass.isAnnotationPresent(Component.class)) {
+                   //  如果该类使用了 @Component 注解，说明是 Spring Bean
+                   System.out.println("这是一个 Spring Bean= " + aClass);
+               }else {
+                   System.out.println("这不是一个 Spring Bean");
+               }
+           } catch (Exception e) {
+               e.printStackTrace();
+           }
+       }
+   }
+   ```
+
+```java
+package com.llq.spring.ioc;
+
+/**
+ * Spring 原生 Ioc 容器
+ */
+public class LlqSpringApplicationContext {
+    private Class configClass;
+    //  存放的是通过反射创建的对象（基于注解方式）
+    private final ConcurrentHashMap<Object, Object> singleTonObject = new ConcurrentHashMap<>();
+
+    public LlqSpringApplicationContext(Class configClass) {
+        //  这里拿到了自定义配置类的 Class 类型
+        this.configClass = configClass;
+        System.out.println("配置类的 Class 类型");
+        System.out.println("this.configClass= " + this.configClass);
+        //  1. 先得到 LlqSpringConfig 配置的注解 @ComponentScan(value = "com.llq.spring.component")
+        ComponentScan declaredAnnotation = (ComponentScan) this.configClass.getDeclaredAnnotation(ComponentScan.class);
+        //  2. 通过 ComponentScan的 value ===> 要扫描的包
+        String path = declaredAnnotation.value();
+        System.out.println("待扫描的包如下：");
+        System.out.println(path);   //  com.llq.spring.component ===> 路径的话，要将 . 替换为 、 ===》com/llq/spring/component
+        String scanDir = path.replace(".", "/");
+        System.out.println(path);
+
+        //  3. 得到扫描包下的所有资源(类.class) ===> 工作目录的 class
+        URL resource = configClass.getClassLoader().getResource(scanDir);  //  URL 对象有许多 API
+        scanDir = resource.getPath();
+        System.out.println("我们真正要扫描的路径如下：");
+        System.out.println(scanDir);
+
+        //  4. 将要加载的资源(.class) 路径下的文件进行遍历 ===> IO 知识
+
+        File file = new File(scanDir); //  得到目录
+        File[] files = file.listFiles();    //  列出目录下的所有文件
+        for (File f : files) {
+            String absolutePath = f.getAbsolutePath();
+            //  注意这里，只处理 .class 文件
+            if (absolutePath.endsWith(".class")) {
+
+                System.out.println(absolutePath);   //  D:\spring5\out\production\spring5\com\llq\spring\component\UserService
+                //  现在反射需要得到：com.llq.spring.component.UserService
+                //  1. 先获取类名
+                String[] split = absolutePath.split("\\\\");
+                String className = split[split.length - 1].split("\\.")[0];
+                //  得到类名
+                System.out.println("类名：" + className);
+                //  再将 / 改回成 .
+                String classFullName = path + "." + className; // 包名 + 类名
+                System.out.println(classFullName);
+
+                //  2. 判断该类是否需要注入到容器中
+                //      观察该类是否包含以下注解
+                //      @Component、@Service、@Repository、@Controller
+                try {
+                    Class<?> aClass = Class.forName(classFullName);
+                    if (aClass.isAnnotationPresent(Component.class)) {
+                        //  如果该类使用了 @Component 注解，说明是 Spring Bean
+                        System.out.println("这是一个 Spring Bean= " + aClass);
+                    }else {
+                        System.out.println("这不是一个 Spring Bean");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    //  编写方法，返回容器中对象
+    public Object getBean(String name){
+        return null;
+    }
+}
+```
+
+### 80. 判断 Class 对象是否实现了某个接口
+
+- Class 文件不能用 instanceof 来判断是否实现了 BeanProcessor 接口
+- 因为 Class 文件不是一个实例对象，而是一个类对象，使用 isAssignableFrom
+
+```java
+if (BeanPostProcessor.class.isAssignableFrom(aClass)){
+    ArrayList.add((BeanPostProcessor) aClass.getConstructor().newInstance());
+}
+```
+
+### 81. 在 main 方法中调用系统类加载器，并扫描文件夹
+
+```bash
+jk	# 文件夹
+├─ ACCC.java
+├─ EEE.java
+├─ Koko.java
+├─ NNQ.java
+├─ Scan.java
+└─ VQQ.java
+```
+
+```java
+package com.llq.jk;
+
+public class Scan {
+    public static void main(String[] args) {
+        String scanDir = "com/llq/jk";
+        //  系统类加载器 ---> getResource() 方法
+        URL resource = ClassLoader.getSystemClassLoader().getResource(scanDir);
+        String path = resource.getPath();
+        File fileDir = new File(path); //  指向目录
+        File[] files = fileDir.listFiles();
+        for (File file : files) {
+            System.out.println(file);   //  getPath()
+        }
+    }
+}
+```
+
+### 82. 获取切面类方法的注解
+
+```java
+public class Test {
+        public static void main(String[] args) throws NoSuchMethodException,
+    InvocationTargetException, IllegalAccessException, InstantiationException {
+        Class<SmartAnimalAspect> smartAnimalAspectClass = SmartAnimalAspect.class;
+        for (Method declaredMethod : smartAnimalAspectClass.getDeclaredMethods()) {
+            if (declaredMethod.isAnnotationPresent(Before.class)) {
+                System.out.println("m:= " + declaredMethod.getName());
+                Before annotation = declaredMethod.getAnnotation(Before.class);
+                System.out.println("value:= " + annotation.value());
+                //得到切入要执行的方法.
+                Method declaredMethod1 =
+                    smartAnimalAspectClass.getDeclaredMethod(declaredMethod.getName());
+                //调用切入方法
+                declaredMethod1.invoke(smartAnimalAspectClass.newInstance(),null);	//	Before ---> 方法
+            } else if(declaredMethod.isAnnotationPresent(After.class)) {
+                System.out.println("m:= " + declaredMethod.getName());
+                After annotation = declaredMethod.getAnnotation(After.class);
+                System.out.println("value:= " + annotation.value());
+                //得到切入要执行的方法.
+                    Method declaredMethod1 =
+                    smartAnimalAspectClass.getDeclaredMethod(declaredMethod.getName());
+                //调用切入方法
+                declaredMethod1.invoke(smartAnimalAspectClass.newInstance(),null);	//	After ---> 方法
+            }
+        }
+    }
+}
+```
+
+如果向进一步实现的话：
+
+1. 通过注解【切入点表达式】看看当前这个类是否已经被代理【需要事先就在Map 中代理保存关系】
+2. 通过注解【切入点表达式】看看当前这个类的哪个方法已经被代理【需要事先就在Map 中代理保存关系】
+3. 通过注解@Before 看看当前这个类的这个方法已经被切面类的哪个方法进行@Before 切入【需要事先
+   就在Map 中代理保存关系】
+4. 通过注解@AfterReturing 看看当前这个类的这个方法已经被切面类的哪个方法进行@AfterReturing 切入【需要事先就在Map 中代理保存关系】
+
+### 83. 数组对象初始化
+
+引用类型数组初始化
+
+```java
+Object[] objects = new Object[]{600, "张飞", "蛮牛式"};
+String[] strings = new String[]{"1", "22"};
+//	1. 在一条语句时，可以简写
+Object[] objects = {600, "张飞", "蛮牛式"};
+String[] strings = {"1", "22"};
+//	2. 作为实参时，将后半部分传入
+new Object[]{600, "张飞", "蛮牛式"};
+new String[]{"1", "22"};
+```
+
+### 84. 配置基于注解的声明式事务管理功能
+
+```java
+//  编写一个方法完成用户购买商品业务
+//  1. 使用 Transactional 可以进行声明式事务控制
+//  2. 即将标识的方法中的，对数据库的操作作为一个事务管理
+@Transactional
+public void buyGoodsByTx(int userId, int goodsId, int amount){
+    System.out.println("用户购买信息 userId= " + userId + "goodsId= " + goodsId + "amount= " + amount);
+    Float price = goodsDao.queryPriceById(goodsId);    //  价格
+    goodsDao.updateBalance(userId, price * amount);    //  减少用户余额 【先付款，后减少库存量】
+
+    goodsDao.updateAmount(goodsId, amount); //  减少库存量
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!-- 指定扫描包位置 -->
+    <context:component-scan base-package="com.llq.spring.tx"/>
+    <!-- 引入外部的 JDBC.properties文件 -->
+
+    <context:property-placeholder location="classpath:JDBC.properties"/>
+
+
+    <!-- 配置数据源对象==DataSource== -->
+    <bean class="com.mchange.v2.c3p0.ComboPooledDataSource" id="dataSource">
+        <!--给数据源对象，配置属性值-->
+        <property name="user" value="${jdbc.userName}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="driverClass" value="${jdbc.driver}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+    </bean>
+
+    <!-- 配置 JdbcTemplate 对象 -->
+    <bean class="org.springframework.jdbc.core.JdbcTemplate" id="jdbcTemplate">
+        <!-- 给 JdbcTemplate 对象配置 dataSource 属性-->
+        <property name="dataSource" ref="dataSource"/>
+
+    </bean>
+
+    <!-- 配置 NamedParameterJdbcTemplate 对象-->
+    <bean class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate" id="namedParameterJdbcTemplate">
+        <!-- 通过构造器，设置数据源-->
+        <constructor-arg name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 配置事务管理器=== 对象
+        1. DataSourceTransactionManager 这个对象是进行事务管理 === debug源码
+        2. 一定要配置数据源属性，这样就指定该事务管理器是对哪个数据源进行事务控制
+    -->
+
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="dataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 配置基于注解的声明式事务管理功能 -->
+    <tx:annotation-driven transaction-manager="dataSourceTransactionManager"/>
+
+</beans>
+```
+
+![jjaq](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202304121133739.png)
+
+### 85. SpringMVC 配置相关
+
+web.xml
+
+- DispatcherServlet
+- contextConfigLocation 【指定 Spring 配置文件】
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+    <!-- 配置 前端控制器 / 中央控制器 / 分发控制器
+        1. 用户的请求都会经过它的处理
+    -->
+    <servlet>
+        <servlet-name>springDispatcherServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <!-- 配置属性 contextConfigLocation，指定 springDispatcherServlet 去操作的 Spring 配置文件 -->
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:applicationContext-mvc.xml</param-value>
+        </init-param>
+        <!--在 web 项目启动时，就自动地加载 DispatcherServlet -->
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>springDispatcherServlet</servlet-name>
+        <!-- 老师说明
+            1. 这里我们配置的 url-pattern 是 /，表示用户的请求都经过 springDispatcherServlet
+            2. 这样配置也支持 rest 风格的 url 请求
+        -->
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+</web-app>
+```
+
+applicationContext-mvc.xml 配置
+
+视图解析器 InternalResourceViewResolver 【容器中只会有一个视图解析器】
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+    <!-- Spring 配置文件 -->
+
+    <!-- 配置自动扫描包-->
+    <context:component-scan base-package="com.llq.web"/>
+
+    <!-- 配置视图解析器 -->
+    <!-- 在整个容器中，只会有一个视图解析器 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!-- 配置属性 suffix 和 prefix -->
+        <property name="prefix" value="/WEB-INF/pages/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+</beans>
+```
+
+
+
+
+
+
+
 
 
 
