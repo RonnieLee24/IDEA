@@ -5918,11 +5918,1324 @@ applicationContext-mvc.xml 配置
 </beans>
 ```
 
+### 86. 当 Servlet 配置了 "/"，会覆盖 tomcat 的 defaultServlet
+
+当其它的 url-pattern都匹配不上时，都会走这个 Servlet，这样可以拦截到其它静态资源
+
+![image-20230415110408033](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202304151104163.png)
+
+上述过程实际上是由 DefaultServlet 来处理的
+
+- 它不知道你这个 register.html 是什么，它肯定是要找一个有没有一个 Servlet 能和它匹配得上
+  - 如果匹配得上，就会去调这个 Servelt
+  - 匹配不到，tomcat 默认的 defaultServlet 会帮我们读取 register.html，然后把这个文件原封不动地返回就可以了
+
+### 87. Web 默认页面
+
+```xml
+<welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+</welcome-file-list>
+```
+
+### 88. Class 文件可以使用 getSimpleName() 方法来获取类名
+
+### 89. Arrays.asList() 方法返回的 list 不能 add、remove【删除 ArrayList 中所有 null 值】
+
+```java
+public class LlqHandler {
+    public static void main(String[] args) {
+        List<Integer> list = new ArrayList<>();
+        Integer[] arr = {1,2,null,3,null,4,null,5};
+        for (Integer integer : arr) {
+            list.add(integer);
+        }
+
+        list.removeAll(Collections.singleton(null));
+
+        System.out.println(list);
+    }
+}
+```
+
+### 90. Java实现 整型与字符串 转换
+
+```java
+bytes[index++] = (byte) Integer.parseInt(strBytes, 2); 
+```
+
+### 91. Java 解码
+
+java byte 数组与二进制互相转换
+
+| 类型                                 |                                                       |
+| ------------------------------------ | ----------------------------------------------------- |
+| bit【位 / 比特】                     | 只能用0 或 1表示，也就是二进制，每个0 或 1 就是 1 bit |
+| byte【字节】                         | 1 byte=8 bits，能够存储的数据范围：-128 ~ + 127       |
+| 1 个字母 = 1个 字节 = 8 bit          |                                                       |
+| 1 个数字 = 1个 字节 = 8 bit          |                                                       |
+| 1 个汉字 = 2 个 字节 = 16bit（16位） | 使用 UTF-8 字符集<br />1个汉字 = 3个字节 = 24bit      |
+| 1 KB = 1024 Bytes                    |                                                       |
+| 1 MB = 1024 KB                       |                                                       |
+| 1 GB = 1024 MB                       |                                                       |
+
+
+
+### 92. 字符串转成 byte[] 数组
+
+```java
+String str = "I love you more than I can say";
+byte[] bytes = str.getBytes();
+for (byte aByte : bytes) {
+    System.out.println(aByte);
+}
+```
+
+```bash
+73 32 108 111 118 101 32 121 111 117 32 109 111 114 101 32 116 104 97 110 32 73 32 99 97 110 32 115 97 121 
+```
+
+byte[] 数组转回成 String
+
+```java
+byte[] bytes = unZip(zip);
+System.out.println("============");
+String s = new String(bytes);	//	byte[] 数组，转回 String
+System.out.println(s);
+```
+
+### 93. 按照二进制方式将 String ===> Integer
+
+```java
+(byte) Integer.parseInt(strBytes, 2);
+```
+
+### 94. Java 数组赋予相同的值
+
+```java
+Arrays.fill(isVisited, false);
+```
+
+### 95. List逆序排序
+
+```java
+Collections.sort(list, Collections.reverseOrder());
+```
+
+### 96. HashSet 的 retainAll() 方法
+
+```java
+//	将 A 和 B 公共部分，存入到 A 中
+A.retainAll(B);
+```
+
+### 97. 一维数组 ===> 二维数组
+
+![img](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202304281318895.png)
+
+![image-20230428132426392](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202304281324537.png)
+
+```java
+package com.alq.binarySerarch;
+
+public class Rain {
+    public static void main(String[] args) {
+        int[] arr = {0,1,0,2,1,0,1,3,2,1,2,1};
+        int col = arr.length;
+        int row = getRow(arr);
+        System.out.println(row);
+        int[][] dp = new int[row][col];
+
+        for (int i = 0; i < col; i++) { //  按列遍历
+            for (int j = 0; j < arr[i]; j++) {  //  arr[i] 当前列有几个 1 【0、1、2、3】
+                dp[row - j - 1][i] = 1;   //  从最后 1 行开始填充   【让 1 在最后一行显示：row - j - 1】
+            }
+        }
+
+        for (int[] ints : dp) {
+            for (int anInt : ints) {
+                System.out.print(anInt + " ");
+            }
+            System.out.println();
+        }
+
+    }
+    public static int getRow(int[] arr){
+        int max = 0;
+        for (int i : arr) {
+            if (max < i){
+                max = i;
+            }
+        }
+        return max;
+    }   
+}
+```
+
+### 98. 线段树相关计算【满二叉树】4n
+
+min
+
+满二叉树所有节点总数：$2^{h}-1$ （h：树的高度）
+
+满二叉树叶子节点：$2^{h-1}$ 
+
+所以我们可以根据叶子节点个数 ---> 全部节点个数
+
+- $n = 2^{h-1}$
+- $h=log2n$
+- 所以：sum = $2^{log2n}$- 1 = 2n -1（n：叶子节点）
+
+max：【本层节点不够用了，只能用下层了：下层叶子节点个数为：2n】
+
+sum = 2(2n) - 1 = 4n - 1
+
+所以得出结论如下：
+$$
+2n-1<size<4n-1
+$$
+所以为了保险起见：空间开为：4n
+
+### 99. 类加载时机
+
+1. 当这个类被实例化的时候如：new A();
+2. 执行这个类里面的static(静态方法时，或者静态属性)如：main方法，这个类才会被加载。
+
+```java
+package single;
+
+public class SingleTon {
+    public static void main(String[] args) {
+        System.out.println(GirlFriend.a);
+    }
+}
+
+class GirlFriend{
+    private String name;
+
+    public static int a = 1;
+
+    private static GirlFriend gf = new GirlFriend("BJQ");
+
+    private GirlFriend(String name) {
+        System.out.println("构造器被调用");
+        this.name = name;
+    }
+
+    public static GirlFriend getInstance(){
+        return gf;
+    }
+
+
+    @Override
+    public String toString() {
+        return "GirlFriend{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+}
+```
+
+![image-20230502194223197](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305021942348.png)
+
+### 100. 静态变量不能用 this 访问
+
+- 首先对于静态方法来说是没有this的
+
+- 其次静态成员变量是独立于对象的，不能访问，但是所有的静态方法和静态变量都可以通过对象访问。
+
+```java
+package com.alq.unionFind;
+
+public class UnionFind {
+    static int[] pre;
+    static int ans;
+    //  {1, x, y}：同类
+    //  {2, x, y}：x 吃 y
+    static int[][] array = {{100, 7}, {1, 101, 1}, {2, 1, 2}, {2, 2, 3}, {2, 3, 3},
+                            {1, 1, 3}, {2, 3, 1}, {1, 5, 5}};
+
+    public static void main(String[] args) {
+        int N = array[0][0];    //  动物数 【1 - N：进行编号】每个动物都是 A、B、C 中的一种
+        int K = array[0][1];  //    K 句话【假话：1. 当前话与前面某些话冲突 2. 当前 X 或者 Y 大于 N 3. 当前表示 X 吃 X】
+
+
+        pre = new int[1000];
+        for (int i = 1; i <= N * 3; i++) {  //  初始化每个元素的父节点为本身
+            pre[i] = i;
+        }
+
+        for (int i = 1; i <= K; i++) {
+            int k = array[i][0];
+            int x = array[i][1];
+            int y = array[i][2];
+            System.out.println("第 " + i + "句话");
+            judge(N, k, x, y);
+        }
+
+        System.out.println(ans);
+    }
+
+    public static int find(int x){
+        if (x != pre[x]){   //  x = pre[x] 范围递归边界，也就是查询到根节点
+            pre[x] = find(pre[x]);  //  路径压缩，路过节点的父节点都指向根节点
+        }
+
+        return pre[x];
+    }
+
+    public static void union(int x, int y){
+        int x0 = find(x);
+        int y0 = find(y);
+        pre[x0] = y0;
+    }
+
+    public static void judge(int n, int k, int x, int y){
+        if (x > n || y > n){
+            System.out.println("这句话错了");
+            UnionFind.ans++;
+            return;
+        }
+
+        if (k == 1){    //  x、y 同类
+            if (find(x + n) == find(y) || find(x + 2*n) == find(y)){   //  x 与 y 捕食或被捕
+                System.out.println("这句话错了");
+                UnionFind.ans++;
+                return;
+            }
+            //  如果不是上面情况，那就是真话
+            union(x, y);    //  x 与 y 为同类
+            union(x + n, y + n);    //  x 的猎物是 y 的猎物
+            union(x + 2*n, y + 2*n);     //  x 的天敌是 y 的天敌
+        }
+
+        if (k == 2){    //  x 吃 y
+            if (find(x) == find(y) || find(x + 2*n) == find(y)){
+                System.out.println("这句话错了");
+                UnionFind.ans++;
+                return;
+            }
+            //  如果不是上述情况，那就是真话
+            union(find(x + n), find(y));    //  x 的猎物是 y 的同类
+            union(find(x + 2 * n), find(y + n));   //   x 的天敌是 y的猎物
+            union(find(x), find(y + 2*n));    //    x 同类是 y 的天敌
+        }
+    }
+}
+```
+
+### 101. 二进制求和
+
+每一位的答案：$(\operatorname{carry}+a_{i}+b_{i})\operatorname{mod}2$
+
+下一位的进位：${\frac{\mathrm{carry}\ +a i+b i}{2}}$
+
+StringBuilder 在指定位置插入：
+
+```java
+sb.insert(0, sum % 2);
+```
+
+```java
+class Solution {
+    public String addBinary(String a, String b) {
+        StringBuffer sb = new StringBuffer();
+        int i = a.length() - 1;
+        int j = b.length() - 1;
+        int carry = 0;
+        while (i >= 0 || j >= 0) {
+            int sum = carry;
+            if (i >= 0) {
+                sum += a.charAt(i--) - '0'; //  注意字符
+            }
+            if (j >= 0) {
+                sum += b.charAt(j--) - '0';
+            }
+            sb.insert(0, sum % 2);
+            carry = sum / 2;
+        }
+        if (carry != 0) {
+            sb.insert(0, carry);
+        }
+        return sb.toString();
+    }
+}
+```
+
+### 102. 双重 if 嵌套（使用 && 进行简化处理）
+
+```java
+public int findNewVertex() {
+    int min = 65535;
+    int index = 0;
+    for (int i = 0; i < dis.length; i++) {
+        if (already_arr[i] == 0 && min > dis[i]) {   //  找出未被访问过的距离最小的节点
+            min = dis[i];
+            index = i;
+        }
+    }
+    already_arr[index] = 1;
+    return index;
+}
+```
+
+### 103. Ctrl + P 查看提示
+
+![image-20230506143341910](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305061433143.png)
+
+### 104. 链表交换
+
+![zaa](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305081848071.png)
+
+### 105. 在新页面打开链接
+
+![image-20230509232839341](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305092328478.png)
+
+### 106. 模拟栈、队列
+
+利用 Deque\<Integer> stackA =  new ArrayDeque<>(); 模拟栈
+
+```java
+stackA.push();	//	push
+stackA.pop();	//	pop
+stackA.peek();	//	peek
+```
+
+利用   Deque\<Integer> queue1; 模拟队列
+
+```java
+queue1.offer();	//	push 入队
+queue1.poll();	//	pop 出队
+queue1.peek();	//	peek
+```
+
+
+
+用 2 个栈实现队列
+
+![11](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305100059829.png)
+
+```java
+class MyQueue {
+    Deque<Integer> stackA;
+    Deque<Integer> StackB;
+
+    public MyQueue() {
+        stackA = new ArrayDeque<>();
+        StackB = new ArrayDeque<>();
+
+    }
+    
+    public void push(int x) {
+        if (StackB.isEmpty()){
+            StackB.addFirst(x);
+            return;
+        }
+        while (!StackB.isEmpty()){
+            stackA.addFirst(StackB.pop());
+        }
+        StackB.push(x);
+        while (!stackA.isEmpty()){
+            StackB.addFirst(stackA.pop());
+        }
+    }
+    
+    public int pop() {
+        return StackB.pop();
+    }
+    
+    public int peek() {
+        return StackB.peek();
+    }
+    
+    public boolean empty() {
+        return StackB.size() == 0;
+    }
+}
+```
+
+用 2个队列实现栈
+
+![11](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305101002536.png)
+
+```java
+class MyStack {
+    Queue<Integer> queue1;
+    Queue<Integer> queue2;
+
+    public MyStack() {
+        queue1 = new LinkedList<>();
+        queue2 = new LinkedList<>();
+    }
+    
+    public void push(int x) {
+        if (queue2.size() == 0){
+            queue2.offer(x);
+            return;
+        }
+        queue1.offer(x);
+        while (queue2.size()!=0){
+            queue1.offer(queue2.poll());
+        }
+
+        while (queue1.size()!=0){
+            queue2.offer(queue1.poll());
+        }
+    }
+    
+    public int pop() {
+        return queue2.poll();
+    }
+    
+    public int top() {
+        return queue2.peek();
+    }
+    
+    public boolean empty() {
+        return queue2.size() == 0;
+    }
+}
+```
+
+### 107. 使用 DFS 和 BFS 遍历树
 
 
 
 
 
+### 108. 用数组统计字符串中每个字符个数
+
+```java
+class Solution {
+    public char findTheDifference(String s, String t) {
+    	if (s.equals("")){
+			return t.charAt(0);
+		}
+		int[] array = new int[26];	//	统计每个字符出现的次数
+		for (char c : s.toCharArray()) {
+			array[c - 'a'] += 1;
+		}
+		for (char c : t.toCharArray()) {
+			int index = c - 'a';
+			array[index] -= 1;
+			if (array[index] < 0){
+				return c;
+			}
+		}
+		return ' ';
+    }
+}
+```
+
+### 109. 2个字符串相加
+
+```java
+class Solution {
+    public String addStrings(String num1, String num2) {
+		StringBuilder sb = new StringBuilder();
+		int len1 = num1.length();
+    	int len2 = num2.length();
+    	int carry = 0;
+
+    	while (len1 > 0 || len2 > 0){
+    		int sum = 0;
+    		if (len1 > 0){
+    			sum += num1.charAt(len1 - 1) - '0';
+    			len1--;
+			}
+
+    		if(len2 > 0){
+    			sum += num2.charAt(len2 - 1) - '0';
+    			len2--;
+			}
+    		sb.append((sum + carry) % 10);
+    		carry = (sum + carry) / 10;
+		}
+    	sb.reverse();
+    	if (carry > 0){
+    		sb.insert(0, "1");
+		}
+
+    	return sb.toString();
+
+    }
+}
+```
+
+### 110. TreeSet的应用！！！
+
+```java
+class Solution {
+    public int thirdMax(int[] nums) {
+        TreeSet<Integer> s = new TreeSet<Integer>();	//	升序排序
+        for (int num : nums) {
+            s.add(num);
+            if (s.size() > 3) {
+                s.remove(s.first());	//	移除最小的数
+            }
+        }
+        //	够 3 个，返回 3 个中最小的
+        //	不够 3 个，返回 最大的
+        return s.size() == 3 ? s.first() : s.last();	//	last 当前最大的元素
+    }
+}
+```
+
+### 111. 统计单词个数
+
+```java
+//	1. ""
+//	2. "          "
+String.isBlank()
+    
+// 1. 清除首尾空格
+s.trim();
+```
+
+正则表达式匹配多个空格
+
+```java
+"\\s+"
+```
+
+```java
+class Solution {
+    public int countSegments(String s) {
+        if(s.isBlank()){	// JDK 11
+            return 0;
+        }
+        return s.trim().split("\\s+").length;
+    }
+}
+```
+
+String中移除空格的方法：
+
+- `trim()` : 删除字符串开头和结尾的空格。
+- `strip()` : 删除字符串开头和结尾的空格。
+- `stripLeading()` : 只删除字符串开头的空格
+- `stripTrailing()` : 只删除字符串的结尾的空格
+- `replace()` : 用新字符替换所有目标字符
+- `replaceAll()` : 将所有匹配的字符替换为新字符。此方法将正则表达式作为输入，以标识需要替换的目标子字符串
+- `replaceFirst()` : 仅将目标子字符串的第一次出现的字符替换为新的字符串
+
+### 112. 汉明距离
+
+https://zhuanlan.zhihu.com/p/436446666
+
+```java
+class Solution {
+    public int hammingDistance(int x, int y) {
+    	int res = x ^ y;
+    	int count = 0;
+    	while (res != 0){
+    		if ((res&1) == 1){	//	看最右侧是否是 1
+    			count++;
+			}
+    		res>>=1;	//	右移
+		}
+    	return count;
+    }
+}
+```
+
+### 113. 相对名次
+
+输入：[10、3、8、9、4]
+
+新建一个数组保存正确顺序：
+
+array = [3、4、8、9、10]
+
+保存
+
+- 3 0
+- 4 1
+- 8 2
+- 9 3
+- 10 4
+
+然后 get[score[i]]：
+
+4、0、2、3、1
+
+```java
+class Solution {
+    public String[] findRelativeRanks(int[] score) {
+    	int n = score.length;
+		int[] array = Arrays.copyOf(score, n);
+		String[] res = new String[n];
+		Arrays.sort(array);
+		Map<Integer, Integer> map = new HashMap<>();
+		for (int i = 0; i < n; i++) {
+			map.put(array[i], n - i - 1);
+		}
+		for (int i = 0; i < n; i++) { // 0 4 2 1 3
+			int order = map.get(score[i]).intValue();
+			if (order == 0){
+				res[i] = "Gold Medal";	//	1
+			}else if (order == 1){
+				res[i] = "Silver Medal";	//	2
+			}else if (order == 2){
+				res[i] = "Bronze Medal";	//	3
+			}else {
+				res[i] = order + 1 + "";
+			}
+		}
+		return res;
+	}
+}
+```
+
+### 114. 下一个更大元素【单调栈】
+
+```java
+class Solution {
+    public int[] nextGreaterElement(int[] nums1, int[] nums2) {
+		Deque<Integer> stack = new ArrayDeque<>();
+		HashMap<Integer, Integer> map = new HashMap<>();
+		for (int i = 0; i < nums2.length; i++) {
+			while (!stack.isEmpty() && stack.peek() < nums2[i]){
+				map.put(stack.pop(), nums2[i]);
+			}
+			stack.push(nums2[i]);
+		}
+		for (int i = 0; i < nums1.length; i++) {
+			nums1[i] = map.getOrDefault(nums1[i], -1);
+		}
+		return nums1;
+	}
+}
+```
+
+输入
+
+```bash
+73、74、75、71、69、69、72、76、73
+```
+
+找到右边第一个最大的数字，并返回这 2 个元素间的距离
+
+```bash
+1 1 5 3 2 1 1 0 0
+```
+
+单调栈：保证栈中的元素是递增或者递减的【栈顶到栈底】
+
+- 递增：比当前元素大的第一个元素
+- 递减：比当前元素小的第一个元素
+
+![nnzz](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305121146950.png)
+
+```java
+class Solution {
+    public int[] nextGreaterElements(int[] nums) {
+    	int n = nums.length;
+
+		int[] dp = new int[n];
+		Arrays.fill(dp, -1);
+		Deque<Integer> stack = new ArrayDeque<>();	//	栈中存的是下标
+
+		for (int i = 0; i < 2 * n; i++) {	//	加了2遍
+			//	1. 重复无所谓【会覆盖】
+			//	2. 但是可以找到之前没找到的
+			int id = i % n ;
+			while (!stack.isEmpty() && nums[stack.peek()] < nums[id]){	//	栈顶 < 待加入的值
+					dp[stack.pop()] = nums[id];
+			}
+			stack.push(id);
+		}
+		return dp;
+	}
+}
+```
+
+#### 每日温度
+
+```java
+class Solution {
+    public int[] dailyTemperatures(int[] temperatures) {
+    	int n = temperatures.length;
+    	int dp[] = new int[n];
+		Deque<Integer> stack = new ArrayDeque<>();
+		for (int i = 0; i < n; i++) {
+			while (!stack.isEmpty() && temperatures[stack.peek()] < temperatures[i]){
+				int top = stack.pop();
+				dp[top] = i - top;	//	新加入的下标 - 当前下标
+			}
+			stack.push(i);
+		}
+		return dp;
+	}
+}
+```
+
+#### 接雨水
+
+算法关键：
+
+- 左侧第一个最大值：栈顶的下一个
+- 右侧第一个最大值：待加入的值
+
+```bash
+0,1,0,2,1,0,1,3,2,1,2,1
+0 1 2 3 4 5 6 7 8 9 10 11 # 栈中存储下标
+```
+
+```java
+class Solution {
+    public int trap(int[] height) {
+		Deque<Integer> stack = new ArrayDeque<>();	//	栈中存的是数组下标
+		int sum = 0;
+
+		for (int i = 0; i < height.length; i++) {
+			while (!stack.isEmpty() && height[stack.peek()] <= height[i]){	//	栈顶只要 <= 待加入的，都要弹栈
+				int r = i;
+				int mid = stack.pop();
+				if (!stack.isEmpty()){
+					int l = stack.peek();
+					sum += getArea(height, mid, l, r);
+				}
+			}
+			stack.push(i);
+		}
+		return sum;
+	}
+
+	public int getArea(int[] arr, int mid, int l, int r){
+    	return  (r - l - 1) * (Math.min(arr[l], arr[r]) - arr[mid]);	//	底 * 高
+	}
+}
+```
+
+
+
+ 
+
+#### 柱状图最大矩形
+
+接雨水是：求外
+
+柱状图最大面积：求内
+
+思路：也是应用单调栈，但是这回要求的是 mid 左右第一次出现的最小值【单调栈内部顺序为：递减】
+
+![img](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305151254645.jpeg)
+
+```java
+class Solution {
+    public int largestRectangleArea(int[] heights) {
+		Deque<Integer> stack = new ArrayDeque<>();
+		Map<Integer, Integer> map = new HashMap<>();
+		for (int i = 0; i < heights.length; i++) {
+			while (!stack.isEmpty() && heights[stack.peek()] >= heights[i]){
+				int mid = stack.pop();	// 2
+				if (!stack.isEmpty()){
+					int l = stack.peek();	//	有左侧限制
+					map.put(mid, getMaxArea(heights, mid, l, i));
+				}else {
+					map.put(mid, getMaxArea(heights, mid, -1, i));
+				}
+			}
+			stack.push(i);
+		}
+
+		while (!stack.isEmpty()){//	处理栈中剩余的值
+			int mid = stack.pop();
+			if (stack.isEmpty()){	//	只有一个数了
+				map.put(mid, getMaxArea(heights, mid, -1, -1));
+			}else {	//	只有左侧限制
+				int l = stack.peek();
+				map.put(mid, getMaxArea(heights, mid, l, -1));
+			}
+		}
+
+		return Collections.max(map.values());
+	}
+
+    public int getMaxArea(int[] arr, int mid, int l, int r){
+        //	有效坐标：l + 1、r - 1
+
+    	if (l == -1 && r == -1){
+    		return arr[mid] * arr.length;
+		}
+
+    	if (l == -1){	//	左侧没有限制
+    		return arr[mid] * (r);	//	【（r-1） - 0 + 1】
+		}
+
+    	if (r == -1){	//	右侧没有限制
+			return arr[mid] * (arr.length - l - 1);	//	【(arr.lengh - 1) - (l + 1) + 1】
+		}
+
+		return arr[mid] * (r - l - 1);	// 【(r - 1) - (l + 1) + 1】
+	}
+}
+```
+
+简化版本：
+
+由于我们无需确认每个点对应最大的面积，所以每次都存最大值就好了，就不用 HashMap 了
+
+```java
+class Solution {
+    public int largestRectangleArea(int[] heights) {
+		Deque<Integer> stack = new ArrayDeque<>();
+		int sum = 0;
+		for (int i = 0; i < heights.length; i++) {
+			while (!stack.isEmpty() && heights[stack.peek()] >= heights[i]){
+				int mid = stack.pop();	// 2
+				if (!stack.isEmpty()){	//
+					int l = stack.peek();	//	有左侧限制
+					sum = Math.max(sum, getMaxArea(heights, mid, l, i));
+				}else {
+					sum = Math.max(sum, getMaxArea(heights, mid, -1, i));
+				}
+			}
+			stack.push(i);
+		}
+
+		while (!stack.isEmpty()){//	处理栈中剩余的值
+			int mid = stack.pop();
+			if (stack.isEmpty()){	//	只有一个数了
+				sum = Math.max(sum, getMaxArea(heights, mid, -1, -1));
+			}else {	//	只有左侧限制
+				int l = stack.peek();
+				sum = Math.max(sum, getMaxArea(heights, mid, l, -1));
+			}
+		}
+		return sum;
+	}
+
+    public int getMaxArea(int[] arr, int mid, int l, int r){
+    	if (l == -1 && r == -1){
+    		return arr[mid] * arr.length;
+		}
+    	if (l == -1){	//	左侧没有限制
+    		return arr[mid] * (r);
+		}
+    	if (r == -1){	//	右侧没有限制
+			return arr[mid] * (arr.length - (l + 1));
+		}
+		return arr[mid] * (r - l - 1);
+	}
+}
+```
+
+### 115. 提莫攻击
+
+```java
+class Solution {
+    public int findPoisonedDuration(int[] timeSeries, int duration) {
+    	int sum = 0;
+    	int expired = 0;
+		for (int i = 0; i < timeSeries.length; i++) {
+			if (expired < timeSeries[i]){	//	在当前已经恢复正常
+				sum += duration;
+			}else {	//	当前还在中毒
+				sum += duration - (expired - timeSeries[i]);	//	毒还要持续多久！！！
+			}
+			expired = timeSeries[i] + duration;
+		}
+
+		return sum;
+	}
+}
+```
+
+链表下一个
+
+```java
+class Solution {
+    public int[] nextLargerNodes(ListNode head) {
+		List<ListNode> list = new ArrayList<ListNode>();
+		ListNode temp = head;
+		while (temp != null){
+			list.add(temp);	//	将链表存储在 ArrayList中，遍历根据下标返回 Node
+			temp = temp.next;
+		}
+		int size = list.size();
+
+		int[] dp = new int[size];
+		Deque<Integer> stack = new ArrayDeque<>();
+		for (int i = 0; i < size; i++) {
+			int newVal = list.get(i).val;
+			while (!stack.isEmpty() && list.get(stack.peek()).val < newVal){
+				dp[stack.pop()] = newVal;
+			}
+			stack.push(i);	//	栈中存放的是下标
+		}
+		return dp;
+	}
+}
+```
+
+
+
+### 116. Postman使用 Post 方式提交
+
+![image-20230512175123175](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305121751308.png)
+
+使用 get 方式
+
+![image-20230512175247170](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305121752299.png)
+
+### 117. 反转链表【双指针】
+
+![img](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305140049760.gif)
+
+```java
+class Solution {
+    public ListNode reverseList(ListNode head) {
+    	ListNode cur = null;
+    	ListNode pre = head;
+    	while (pre != null){
+    		ListNode temp = pre.next;	//	先保存 pre 的下一个节点
+    		pre.next = cur;
+    		cur =  pre;
+    		pre = temp;
+		}
+    	return cur;
+	}
+}
+```
+
+头插法
+
+```java
+class Solution {
+    public ListNode reverseBetween(ListNode head, int left, int right) {
+    	if (head == null){
+    		return null;
+		}
+
+    	ListNode pre = new ListNode(0);
+    	pre.next = head;
+    	ListNode p = pre;
+		for (int i = 1; i < left; i++) {	//	p 指向 left 前一个【如果 left = 1, p 就是 pre】
+			p = p.next;
+		}
+		int count = right - left;	//	移动的次数
+			ListNode cur = p.next;	//	cur初始指向 left 位置的节点
+			for (int i = 0; i < count; i++) {
+				ListNode insertNode = cur.next;	//	暂存将要移走的 Node
+				cur.next = cur.next.next;
+				ListNode headNode = p.next;	//	之前的头节点
+				insertNode.next = headNode;
+				p.next = insertNode;
+		}
+		return pre.next;
+	}
+}
+```
+
+### 118. 缓存文件置换机制【LRU】
+
+是电脑处理缓存存储器的一种机制
+
+电脑存储器空间的大小固定，无法容纳服务器上所有的文件,所以当有新的文件要被置换入缓存时，必须根据一定的原则来取代掉适当的文件。此原则即所谓缓存文件置换机制。
+
+缓存文件置换方法有：
+
+- FIFO：最先进入的内容作为替换对象
+- LFU：最久没有访问的内容作为替换对象
+- LRU：<font color="yellow">**最近最少使用** </font>的内容作为替换对象
+- NMRU：在最近没有使用的内容中随机选择一个作为替换对象
+- Belady's algorithm
+
+```java
+class LRUCache {
+
+    int capacity;
+    Map<Integer, Integer> map = new HashMap();
+    Deque<Integer> list = new LinkedList<>();
+
+    public LRUCache(int capacity) {
+        this.capacity = capacity;
+    }
+    
+    public int get(int key) {
+        //  每次get，相当于使用了
+        if (map.containsKey(key)){
+            list.remove(key);
+            list.addFirst(key);
+        }
+        return map.getOrDefault(key, -1);
+    }
+    
+    public void put(int key, int value) {
+        //  要插入map中没有的 key，并且此时空间已经满了
+        if (map.size() == capacity){
+            if (!map.containsKey(key)) {
+                map.remove(list.removeLast());
+                map.put(key, value);
+                list.addFirst(key);
+            }else {
+               map.put(key, value);
+               list.remove(key);
+               list.addFirst(key);
+            }
+            return;
+        }
+
+        if (map.containsKey(key)){
+            map.put(key, value);
+            list.remove(key);
+            list.addFirst(key);
+            return;
+        }
+        map.put(key, value);
+        list.addFirst(key);
+    }
+}
+```
+
+
+
+#### LinkedHashMap
+
+https://leetcode.cn/problems/lru-cache/solutions/81045/yuan-yu-linkedhashmapyuan-ma-by-jeromememory/
+
+### 119. 反转字符串
+
+```java
+// 344
+class Solution {
+    public void reverseString(char[] s) {
+    	int l = 0;
+    	int r = s.length - 1;
+    	swap(s, l, r);
+	}
+
+	public void swap(char[] chars, int l, int r){
+    	while (l < r){
+    		char temp = chars[l];
+    		chars[l] = chars[r];
+    		chars[r] = temp;
+    		l++;
+    		r--;
+		}
+	}
+}
+```
+
+
+
+```java
+//	541
+class Solution {
+    public String reverseStr(String s, int k) {	//	s.length = 7
+		int remain = s.length() % (2 * k);	//	3
+		char[] chars = s.toCharArray();
+		for (int i = 0; i < s.length() - remain; i+= 2 * k) {
+			swap(chars, i, i + k - 1);
+		}
+
+		if(remain < k){
+			swap(chars, s.length() - remain, s.length() - 1);
+		}else if (remain >= k && remain < 2 * k){
+			swap(chars, s.length() - remain, s.length() - (remain - k) - 1);
+		}
+		return new String(chars);
+	}
+
+	public void swap(char[] chars, int l , int r){
+    	while (l < r){
+    		char temp = chars[l];
+    		chars[l] = chars[r];
+    		chars[r] = temp;
+    		l++;
+    		r--;
+		}
+	}
+}
+```
+
+```java
+// 557
+class Solution {
+    public String reverseWords(String s) {
+		char[] chars1 = s.toCharArray();
+		for (int i = 0, l = 0; i < chars1.length; i++) {
+			if (chars1[i] == ' ' || i == chars1.length - 1){
+				int r = i == chars1.length - 1? chars1.length - 1: i - 1;
+				swap(chars1, l, r);
+				l = i + 1;
+			}
+		}
+		return new String(chars1);
+	}
+	public void swap(char[] chars, int l , int r){
+		while (l < r){
+			char temp = chars[l];
+			chars[l] = chars[r];
+			chars[r] = temp;
+			l++;
+			r--;
+		}
+	}
+}
+```
+
+### 120. SpringMVC 模型数据、对象会自动放入到 Request 域中
+
+对象
+
+```java
+@RequestMapping(value = "/login")
+@Controller
+public class LoginHandler {
+    @RequestMapping(value = "/check")
+    public String doLogin(User user){
+        if ("llq".equals(user.getUsername()) && "123".equals(user.getPassword())){
+            return "login_ok";
+        }
+        return "login_error";
+    }
+}
+```
+
+MAP
+
+```java
+@RequestMapping(value = "/vote06")
+public String test06(Master master, Map<String, Object> map) {
+    //  1. 需求：通过 map 对象，添加属性到 request 域中
+    //  2. 原理分析：springmvc 会遍历 map，然后将 map 的 key-value 存放到 request 域中
+    map.put("address", "beijing...");
+    //返回到一个结果
+    return "vote_ok";
+}
+```
+
+ModelAndView对象
+
+```java
+/**
+     * 演示通过 ModelAndView对象，将数据放入到 request域
+     * @param master
+     * @return
+     */
+@RequestMapping(value = "/vote07")
+public ModelAndView test07(Master master){
+    ModelAndView modelAndView = new ModelAndView();
+    //  放入属性到 modelAndView 对象
+    modelAndView.addObject("address", "jixi");
+    //  指定要跳转的视图名称
+    modelAndView.setViewName("vote_ok");
+    //  返回结果
+    return modelAndView;
+}
+```
+
+### 121. Scope 标签表示引入的 jar的作用范围
+
+![nnbb](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305170015518.png)
+
+1. provided：表示该项目在打包，放入到生产环境时，不需要带上 servlet-api.jar 
+2. 因为 toncat 本身是有 servlet 的 jar，到时候直接使用 tomcat 本身的 servlet-api，防止版本冲突
+
+```xml
+<!-- 引入servlet 原生依赖-->
+<dependency>
+    <groupId>javax.servlet</groupId>
+    <artifactId>javax.servlet-api</artifactId>
+    <version>3.1.0</version>
+    <scope>provided</scope>
+</dependency>
+```
+
+3. scope-test 表示：jar 的作用范围在 test 目录
+
+### 122. idea的mapper.xml的sql语句显示灰白色
+
+```bash
+# 将 https 改为 http
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd"
+```
+
+### 123.  复制文件在项目中的位置
+
+copy path from source Root
+
+![image-20230517111226364](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305171112520.png)
+
+### 124. Mybatis 找不到 MonsterMapper.xml 
+
+![image-20230517122510286](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305171225485.png)
+
+解决：在父工程的 pom.xml 加入 build 配置
+
+```xml
+<!--在build 中配置resources，来防止我们资源导出失败的问题
+老韩解读：
+	1. 不同的idea/maven 可能提示的错误不一样
+	2. 不变应万变，少什么文件，就增加相应配置即可
+	3. 含义是：将 src/main/java 目录和子目录 和 src/main/resources目录和子目录的 xml、propeties在 build时
+	   拷贝到 工作路径 target 对应的路径下
+-->
+<build>
+    <resources>
+        <resource>
+            <directory>src/main/java</directory>
+            <includes>
+                <include>**/*.xml</include>
+            </includes>
+        </resource>
+        <resource>
+            <directory>src/main/resources</directory>
+            <includes>
+                <include>**/*.xml</include>
+                <include>**/*.properties</include>
+            </includes>
+        </resource>
+    </resources>
+</build>
+```
+
+### 125. Mybatis 配置 mapper.xml 时，使用 parameterType 指定放入参数的类型
+
+```xml
+	<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+    1. 这是一个 mapper.xml 文件
+    2. 该文件可以去实现接口对应的方法
+    3. namespace：指定该 xml 和哪个接口对应！！！
+-->
+<mapper namespace="com.llq.mapper.MonsterMapper">
+    <!-- 配置 addMonster
+        1. id="addMonster" 就是接口的方法
+        2. parameterType="com.llq.entity.Monster" 放入的形参类型
+        3. 注意："com.llq.entity.Monster" 可以简写
+        4. 写入 sql 语句
+        5. (#{age}, #{birthday}, #{email}, #{gender}, #{name}, #{salary}) 是从 monster 对象属性
+        6. 这里 #{age} age 对应 monster 对象属性名，其它类推
+
+    -->
+    <insert id="addMonster" parameterType="com.llq.entity.Monster">
+        INSERT INTO `monster`
+        (`age`, `birthday`, `email`, `gender`, `name`, `salary`)
+        VALUES(#{age}, #{birthday}, #{email}, #{gender}, #{name}, #{salary})
+    </insert>
+</mapper>
+```
+
+### 126. mapper.xml 类型别名 typeAliases
+
+要在 mybatis-config.xml 中配置
+
+![image-20230520003429054](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305200034367.png)
+
+```xml
+<typeAliases>
+    <typeAlias type="com.llq.entity.Monster" alias="Monster"/>
+</typeAliases>
+```
 
 
 
