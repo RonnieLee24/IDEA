@@ -213,6 +213,58 @@
     - [83. 数组对象初始化](#83-数组对象初始化)
     - [84. 配置基于注解的声明式事务管理功能](#84-配置基于注解的声明式事务管理功能)
     - [85. SpringMVC 配置相关](#85-springmvc-配置相关)
+    - [86. 当 Servlet 配置了 "/"，会覆盖 tomcat 的 defaultServlet](#86-当-servlet-配置了-会覆盖-tomcat-的-defaultservlet)
+    - [87. Web 默认页面](#87-web-默认页面)
+    - [88. Class 文件可以使用 getSimpleName() 方法来获取类名](#88-class-文件可以使用-getsimplename-方法来获取类名)
+    - [89. Arrays.asList() 方法返回的 list 不能 add、remove【删除 ArrayList 中所有 null 值】](#89-arraysaslist-方法返回的-list-不能-addremove删除-arraylist-中所有-null-值)
+    - [90. Java实现 整型与字符串 转换](#90-java实现-整型与字符串-转换)
+    - [91. Java 解码](#91-java-解码)
+    - [92. 字符串转成 byte\[\] 数组](#92-字符串转成-byte-数组)
+    - [93. 按照二进制方式将 String ===\> Integer](#93-按照二进制方式将-string--integer)
+    - [94. Java 数组赋予相同的值](#94-java-数组赋予相同的值)
+    - [95. List逆序排序](#95-list逆序排序)
+    - [96. HashSet 的 retainAll() 方法](#96-hashset-的-retainall-方法)
+    - [97. 一维数组 ===\> 二维数组](#97-一维数组--二维数组)
+    - [98. 线段树相关计算【满二叉树】4n](#98-线段树相关计算满二叉树4n)
+    - [99. 类加载时机](#99-类加载时机)
+    - [100. 静态变量不能用 this 访问](#100-静态变量不能用-this-访问)
+    - [101. 二进制求和](#101-二进制求和)
+    - [102. 双重 if 嵌套（使用 \&\& 进行简化处理）](#102-双重-if-嵌套使用--进行简化处理)
+    - [103. Ctrl + P 查看提示](#103-ctrl--p-查看提示)
+    - [104. 链表交换](#104-链表交换)
+    - [105. 在新页面打开链接](#105-在新页面打开链接)
+    - [106. 模拟栈、队列](#106-模拟栈队列)
+    - [107. 使用 DFS 和 BFS 遍历树](#107-使用-dfs-和-bfs-遍历树)
+    - [108. 用数组统计字符串中每个字符个数](#108-用数组统计字符串中每个字符个数)
+    - [109. 2个字符串相加](#109-2个字符串相加)
+    - [110. TreeSet的应用！！！](#110-treeset的应用)
+    - [111. 统计单词个数](#111-统计单词个数)
+    - [112. 汉明距离](#112-汉明距离)
+    - [113. 相对名次](#113-相对名次)
+    - [114. 下一个更大元素【单调栈】](#114-下一个更大元素单调栈)
+      - [每日温度](#每日温度)
+      - [接雨水](#接雨水)
+      - [柱状图最大矩形](#柱状图最大矩形)
+    - [115. 提莫攻击](#115-提莫攻击)
+    - [116. Postman使用 Post 方式提交](#116-postman使用-post-方式提交)
+    - [117. 反转链表【双指针】](#117-反转链表双指针)
+    - [118. 缓存文件置换机制【LRU】](#118-缓存文件置换机制lru)
+      - [LinkedHashMap](#linkedhashmap)
+    - [119. 反转字符串](#119-反转字符串)
+    - [120. SpringMVC 模型数据、对象会自动放入到 Request 域中](#120-springmvc-模型数据对象会自动放入到-request-域中)
+    - [121. Scope 标签表示引入的 jar的作用范围](#121-scope-标签表示引入的-jar的作用范围)
+    - [122. idea的mapper.xml的sql语句显示灰白色](#122-idea的mapperxml的sql语句显示灰白色)
+    - [123.  复制文件在项目中的位置](#123--复制文件在项目中的位置)
+    - [124. Mybatis 找不到 MonsterMapper.xml](#124-mybatis-找不到-monstermapperxml)
+    - [125. Mybatis 配置 mapper.xml 时，使用 parameterType 指定放入参数的类型](#125-mybatis-配置-mapperxml-时使用-parametertype-指定放入参数的类型)
+    - [126. mapper.xml 类型别名 typeAliases](#126-mapperxml-类型别名-typealiases)
+    - [127. 使用 lombok 简化 javabean 开发](#127-使用-lombok-简化-javabean-开发)
+    - [128. mybatis-config.xml配置文件有顺序限制](#128-mybatis-configxml配置文件有顺序限制)
+    - [129. Mybatis 模糊查询【"%${name}%"】](#129-mybatis-模糊查询name)
+    - [130.  指定 Maven的 JDK 和  编译器的版本](#130--指定-maven的-jdk-和--编译器的版本)
+    - [131. Mybatis 批量注册 xml 或者 接口](#131-mybatis-批量注册-xml-或者-接口)
+    - [132. IDEA 将多个模块收起](#132-idea-将多个模块收起)
+    - [133. Mybatis中 mapper 文件夹下 mapper和 mapper.xml 前部分名字要一致](#133-mybatis中-mapper-文件夹下-mapper和-mapperxml-前部分名字要一致)
 
 # IDEA快捷键整理
 
@@ -7236,6 +7288,192 @@ copy path from source Root
     <typeAlias type="com.llq.entity.Monster" alias="Monster"/>
 </typeAliases>
 ```
+
+### 127. 使用 lombok 简化 javabean 开发
+
+提供了一系列注解
+
+```xml
+<!-- 简化 javaBean 开发 -->
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.20</version>
+</dependency>
+```
+
+```java
+/**
+ * Monster 和 monster 表有映射关系
+ */
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@ToString
+public class Monster {
+    private Integer id;
+    private Integer age;
+    private String name;
+    private String email;
+    private Date birthday;
+    private Double salary;
+    private Integer gender;
+}
+```
+
+我们再来 build一下，生成Monster.class，对 Monster.class文件进行反编译，来看它真正的方法
+
+```java
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
+package com.llq.entity;
+
+import java.util.Date;
+
+public class Monster {
+    private Integer id;
+    private Integer age;
+    private String name;
+    private String email;
+    private Date birthday;
+    private Double salary;
+    private Integer gender;
+
+    public Monster() {
+    }
+
+    public Monster(Integer id, Integer age, String name, String email, Date birthday, Double salary, Integer gender) {
+        this.id = id;
+        this.age = age;
+        this.name = name;
+        this.email = email;
+        this.birthday = birthday;
+        this.salary = salary;
+        this.gender = gender;
+    }
+
+    public Integer getId() {
+        return this.id;
+    }
+
+    public Integer getAge() {
+        return this.age;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public Date getBirthday() {
+        return this.birthday;
+    }
+
+    public Double getSalary() {
+        return this.salary;
+    }
+
+    public Integer getGender() {
+        return this.gender;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
+    public void setSalary(Double salary) {
+        this.salary = salary;
+    }
+
+    public void setGender(Integer gender) {
+        this.gender = gender;
+    }
+
+    public String toString() {
+        Integer var10000 = this.getId();
+        return "Monster(id=" + var10000 + ", age=" + this.getAge() + ", name=" + this.getName() + ", email=" + this.getEmail() + ", birthday=" + this.getBirthday() + ", salary=" + this.getSalary() + ", gender=" + this.getGender() + ")";
+    }
+}
+```
+
+使用 Lombok 注解后，还是找不到 set 方法
+
+解决：IDEA 安装 lombok 插件后，重启 IDEA
+
+### 128. mybatis-config.xml配置文件有顺序限制
+
+```bash
+The content of element type "configuration" must match "(properties?,settings?,typeAliases?,typeHandlers?,objectFactory?,objectWrapperFactory?,reflectorFactory?,plugins?,environments?,databaseIdProvider?,mappers?)".
+```
+
+### 129. Mybatis 模糊查询【"%${name}%"】
+
+```xml
+<select id="findMonsterByName" parameterType="String" resultType="Monster">
+    select `id`, `age`, `birthday`, `email`, `gender`, `name`, `salary` from `monster` where `name` like "%${name}%"
+</select>
+```
+
+### 130.  指定 Maven的 JDK 和  编译器的版本
+
+在父工程的 pom.xml 中指定版本 
+
+```xml
+<properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <java.version>1.8</java.version>
+</properties>
+```
+
+### 131. Mybatis 批量注册 xml 或者 接口
+
+```xml
+<mappers>
+    <package name="com.llq.mapper"/>
+</mappers>
+```
+
+package 方式注册：
+
+- 当一个包下有很多的Mapper.xml 文件和基于注解实现的接口时，为了方便，我们可以以包方式进行注册
+- 将下面的所有xml 文件和注解接口都进行注册
+
+### 132. IDEA 将多个模块收起
+
+一直按住左键即可
+
+![image-20230526090539410](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305260905670.png)
+
+### 133. Mybatis中 mapper 文件夹下 mapper和 mapper.xml 前部分名字要一致
+
+
+
+![image-20230526093241872](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305260932026.png)
 
 
 
