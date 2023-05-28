@@ -265,6 +265,7 @@
     - [131. Mybatis 批量注册 xml 或者 接口](#131-mybatis-批量注册-xml-或者-接口)
     - [132. IDEA 将多个模块收起](#132-idea-将多个模块收起)
     - [133. Mybatis中 mapper 文件夹下 mapper和 mapper.xml 前部分名字要一致](#133-mybatis中-mapper-文件夹下-mapper和-mapperxml-前部分名字要一致)
+    - [134. IDEA抽取方法](#134-idea抽取方法)
 
 # IDEA快捷键整理
 
@@ -7475,7 +7476,13 @@ package 方式注册：
 
 ![image-20230526093241872](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305260932026.png)
 
+### 134. IDEA抽取方法
 
+Ctrl + Alt + m
+
+![image-20230528160514584](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305281605819.png)
+
+![image-20230528160630887](https://cdn.jsdelivr.net/gh/RonnieLee24/PicGo_Pictures@master/imgs/DB/202305281606148.png)
 
 
 
